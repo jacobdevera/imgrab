@@ -14,5 +14,20 @@
         "tabs",
         "activeTab",
         "storage"
-    ]
+    ],
+    "background": {
+		"scripts": [
+            "background.js"
+		],
+		"persistent": false
+	},
+	
+	"content_scripts": [
+		{
+			"matches": ["http://*/*", "https://*/*"],
+			"js": ["content.js"],
+	        "run_at": "document_end",
+	        "all_frames": true
+		}
+	]
 }
