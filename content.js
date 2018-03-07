@@ -51,12 +51,16 @@ function mouseDown(e) {
 
 function mouseMove(e) {
 	e.preventDefault();
- 
-	var nowPos = {x: e.pageX, y: e.pageY};
-	var diff = {x: nowPos.x - startPos.x, y: nowPos.y - startPos.y};
+    let nowPos = {x: e.pageX, y: e.pageY};
+    
+    // change top-left corner if selection goes above or left of start
+    ghostElement.style.left = nowPos.x < startPos.x ? `${nowPos.x}px` : `${startPos.x}px`;
+    ghostElement.style.top = nowPos.y < startPos.y ? `${nowPos.y}px` : `${startPos.y}px`;
+
+	let diff = {x: nowPos.x - startPos.x, y: nowPos.y - startPos.y};
 	
-	ghostElement.style.width = diff.x + 'px';
-	ghostElement.style.height = diff.y + 'px';
+	ghostElement.style.width = Math.abs(diff.x) + 'px';
+	ghostElement.style.height = Math.abs(diff.y) + 'px';
 	
 	return false;
 }
@@ -64,8 +68,8 @@ function mouseMove(e) {
 function mouseUp(e) {
 	e.preventDefault();
 	
-	var nowPos = {x: e.pageX, y: e.pageY};
-	var diff = {x: nowPos.x - startPos.x, y: nowPos.y - startPos.y};
+	let nowPos = {x: e.pageX, y: e.pageY};
+	let diff = {x: nowPos.x - startPos.x, y: nowPos.y - startPos.y};
  
 	document.removeEventListener('mousemove', mouseMove, false);
 	document.removeEventListener('mouseup', mouseUp, false);
@@ -74,10 +78,10 @@ function mouseUp(e) {
 	
 	setTimeout(function() {
 		var coords = {
-			w: diff.x,
-			h: diff.y,
-			x: startPos.x,
-			y: startY
+			w: Math.abs(diff.x),
+			h: Math.abs(diff.y),
+			x: Math.min(nowPos.x, startPos.x),
+			y: Math.min(nowPos.y, startPos.y)
 		};
 		gCoords = coords;
 		endScreenshot(coords);
