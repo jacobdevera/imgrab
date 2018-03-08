@@ -80,8 +80,8 @@ function mouseUp(e) {
 		var coords = {
 			w: Math.abs(diff.x),
 			h: Math.abs(diff.y),
-			x: Math.min(nowPos.x, startPos.x),
-			y: Math.min(nowPos.y, startPos.y)
+			x: Math.min(nowPos.x, startPos.x) - window.pageXOffset,
+			y: Math.min(nowPos.y, startPos.y) - window.pageYOffset
 		};
 		gCoords = coords;
 		endScreenshot(coords);
