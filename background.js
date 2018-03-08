@@ -6,7 +6,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         'from a content script:' + sender.tab.url :
         'from the extension');
     if (request.type == 'coords' && request.coords.h > 0) {
-        console.log(request.coords);
         chrome.tabs.captureVisibleTab(chrome.windows.WINDOW_ID_CURRENT, { format: "png" }, (dataUrl) => {
             chrome.tabs.query({ active: true, windowType: "normal", currentWindow: true }, (tabs) => {
                 let canvas = document.createElement('canvas');
@@ -23,13 +22,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                     setBadgeLoading(tabs[0].id);
                     uploadImageToImgur(croppedImageData).then((response) => {
                         console.log(response);
-                        chrome.tabs.create({
-                            url: response.data.link
-                        })
                         clearBadgeText(tabs[0].id);
                     }).catch((error) => {
                         console.log(error);
-                        clearBadgeText(tabs[0].id);
+                        setBadgeError(tabs[0].id);
                     });
                 }
                 img.src = dataUrl;
@@ -69,9 +65,14 @@ function uploadImageToImgur(data) {
             'Authorization': `Client-ID ${clientID}`,
         },
         body: data,
-    })
-        .then(response => response.json());
+    }).then(response => response.json()).then((json) => {
+        chrome.tabs.create({
+            url: json.data.link
+        })
+    });
 }
+
+
 
 function onImgurTabLoaded(tabId, changeInfo, tab) {
     if (changeInfo.status === "loading" && tab.url.match("i.imgur.com")) {
@@ -90,6 +91,11 @@ function setBadgeLoading(tabId) {
 function setBadgeSuccess(tabId) {
     chrome.browserAction.setBadgeBackgroundColor({ color: 'green', tabId: tabId });
     chrome.browserAction.setBadgeText({ text: "done", tabId: tabId });
+}
+
+function setBadgeError(tabId) {
+    chrome.browserAction.setBadgeBackgroundColor({ color: 'red', tabId: tabId });
+    chrome.browserAction.setBadgeText({ text: "fail", tabId: tabId });
 }
 
 function clearBadgeText(tabId) {
