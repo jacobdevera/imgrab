@@ -77,11 +77,12 @@ function mouseUp(e) {
 	ghostElement.parentNode.removeChild(ghostElement);
 	
 	setTimeout(function() {
+		let scale = window.devicePixelRatio ? window.devicePixelRatio : 1;
 		var coords = {
-			w: Math.abs(diff.x),
-			h: Math.abs(diff.y),
-			x: Math.min(nowPos.x, startPos.x) - window.pageXOffset,
-			y: Math.min(nowPos.y, startPos.y) - window.pageYOffset
+			w: Math.abs(diff.x) * scale,
+			h: Math.abs(diff.y) * scale,
+			x: (Math.min(nowPos.x, startPos.x) - window.pageXOffset) * scale,
+			y: (Math.min(nowPos.y, startPos.y) - window.pageYOffset) * scale
 		};
 		gCoords = coords;
 		endScreenshot(coords);
