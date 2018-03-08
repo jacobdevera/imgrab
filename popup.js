@@ -12,23 +12,24 @@ document.querySelector("#screen").addEventListener("click", () => {
         let imageData = bgPage.convertURLToImageData(dataUrl);
         console.log("Finished!");
         console.log("Sending POST request...");
-
-        bgPage.uploadImageToImgur(imageData)
-            .then((response) => {
+        chrome.tabs.query({ active: true, windowType: "normal", currentWindow: true }, (tabs) => {
+            bgPage.setBadgeLoading(tabs[0].id);
+            bgPage.uploadImageToImgur(imageData).then((response) => {
                 console.log(response);
                 chrome.tabs.create({
                     url: response.data.link
-                }, () => chrome.browserAction.setBadgeText({ text: ""})) // clear loader ui feedback
-            })
-            .catch((error) => {
-                chrome.browserAction.setBadgeText({ text: ""}); // clear loader ui feedback
+                })
+                bgPage.clearBadgeText(tabs[0].id);
+            }).catch((error) => {
+                bgPage.clearBadgeText(tabs[0].id);
                 console.log(error);
             });
+        })
     })
 })
 
 document.querySelector("#snippet").addEventListener("click", () => {
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
         chrome.tabs.sendMessage(tabs[0].id, { type: "start-screenshot" }, (response) => { });
     });
 })

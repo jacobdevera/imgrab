@@ -5,31 +5,37 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     console.log(sender.tab ?
         'from a content script:' + sender.tab.url :
         'from the extension');
-    if (request.type == 'coords') {
+    if (request.type == 'coords' && request.coords.h > 0) {
         console.log(request.coords);
+        chrome.tabs.captureVisibleTab(chrome.windows.WINDOW_ID_CURRENT, { format: "png" }, (dataUrl) => {
+            chrome.tabs.query({ active: true, windowType: "normal", currentWindow: true }, (tabs) => {
+                let canvas = document.createElement('canvas');
+                let { w, h, x, y } = request.coords;
+
+                canvas.width = w;
+                canvas.height = h;
+
+                var ctx = canvas.getContext('2d');
+                var img = new Image;
+                img.onload = () => {
+                    ctx.drawImage(img, x, y, w, h, 0, 0, w, h);
+                    let croppedImageData = convertURLToImageData(canvas.toDataURL());
+                    setBadgeLoading(tabs[0].id);
+                    uploadImageToImgur(croppedImageData).then((response) => {
+                        console.log(response);
+                        chrome.tabs.create({
+                            url: response.data.link
+                        })
+                        clearBadgeText(tabs[0].id);
+                    }).catch((error) => {
+                        console.log(error);
+                        clearBadgeText(tabs[0].id);
+                    });
+                }
+                img.src = dataUrl;
+            })
+        })
     }
-    chrome.tabs.captureVisibleTab(chrome.windows.WINDOW_ID_CURRENT, { format: "png" }, (dataUrl) => {
-        let canvas = document.createElement('canvas');
-        let { w, h, x, y } = request.coords;
-        canvas.width = w;
-        canvas.height = h;
-        var ctx = canvas.getContext('2d');
-        var img = new Image;
-        img.onload = () => {
-            ctx.drawImage(img, x, y, w, h, 0, 0, w, h);
-            let croppedImageData = convertURLToImageData(canvas.toDataURL());
-            uploadImageToImgur(croppedImageData).then((response) => {
-                console.log(response);
-                chrome.tabs.create({
-                    url: response.data.link
-                }, () => chrome.browserAction.setBadgeText({ text: ""}))
-            }).catch((error) => {
-                chrome.browserAction.setBadgeText({ text: ""})
-                console.log(error);
-            });
-        };
-        img.src = dataUrl;
-    })
 });
 
 /**
@@ -54,7 +60,6 @@ function convertURLToImageData(dataUrl) {
  * @param {*} data The image data
  */
 function uploadImageToImgur(data) {
-    chrome.browserAction.setBadgeText({ text: "..."});
     let formData = new FormData();
     formData.append("image", data);
 
@@ -66,4 +71,27 @@ function uploadImageToImgur(data) {
         body: data,
     })
         .then(response => response.json());
+}
+
+function onImgurTabLoaded(tabId, changeInfo, tab) {
+    if (changeInfo.status === "loading" && tab.url.match("i.imgur.com")) {
+        setBadgeSuccess(tabId);
+        chrome.tabs.onUpdated.removeListener(myListener);
+    }
+}
+
+chrome.tabs.onUpdated.addListener(onImgurTabLoaded);
+
+function setBadgeLoading(tabId) {
+    chrome.browserAction.setBadgeBackgroundColor({ color: 'blue', tabId: tabId });
+    chrome.browserAction.setBadgeText({ text: "...", tabId: tabId });
+}
+
+function setBadgeSuccess(tabId) {
+    chrome.browserAction.setBadgeBackgroundColor({ color: 'green', tabId: tabId });
+    chrome.browserAction.setBadgeText({ text: "done", tabId: tabId });
+}
+
+function clearBadgeText(tabId) {
+    chrome.browserAction.setBadgeText({ text: "", tabId: tabId });
 }
