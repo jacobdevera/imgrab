@@ -22,8 +22,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 console.log(response);
                 chrome.tabs.create({
                     url: response.data.link
-                })
+                }, () => chrome.browserAction.setBadgeText({ text: ""}))
             }).catch((error) => {
+                chrome.browserAction.setBadgeText({ text: ""})
                 console.log(error);
             });
         };
@@ -53,9 +54,9 @@ function convertURLToImageData(dataUrl) {
  * @param {*} data The image data
  */
 function uploadImageToImgur(data) {
+    chrome.browserAction.setBadgeText({ text: "..."});
     let formData = new FormData();
     formData.append("image", data);
-
 
     return fetch(imgurAPIUrl, {
         method: 'POST',

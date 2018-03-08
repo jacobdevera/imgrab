@@ -18,9 +18,10 @@ document.querySelector("#screen").addEventListener("click", () => {
                 console.log(response);
                 chrome.tabs.create({
                     url: response.data.link
-                })
+                }, () => chrome.browserAction.setBadgeText({ text: ""})) // clear loader ui feedback
             })
             .catch((error) => {
+                chrome.browserAction.setBadgeText({ text: ""}); // clear loader ui feedback
                 console.log(error);
             });
     })
