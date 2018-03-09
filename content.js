@@ -1,18 +1,21 @@
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.type == "start-screenshot") {
-        startScreenshot();
-        sendResponse({});
-    } else {
-        sendResponse({});
-    }
+chrome.runtime.onMessage.addListener((request) => {
+	switch (request.type) {
+		case "start-screenshot":
+			startScreenshot();
+			break;
+		default:
+			break;
+	}
 });
 
+// TODO: change addeventlistener to one time
 function startScreenshot() {
     console.log('start screenshot');
 	document.body.style.cursor = 'crosshair';
     document.addEventListener('mousedown', mouseDown, false);
 }
 
+// TODO: remove removeEventlistener
 function endScreenshot(coords) {
 	document.removeEventListener('mousedown', mouseDown, false);
 	sendMessage({type: 'coords', coords: coords});
@@ -24,8 +27,10 @@ function sendMessage(msg) {
 	chrome.runtime.sendMessage(msg, (response) => {});
 };
 
+// TODO: change to let
 var ghostElement, startPos, startY;
 
+// TODO: change addeventlistener to one time
 function mouseDown(e) {
 	e.preventDefault();
  
@@ -64,7 +69,8 @@ function mouseMove(e) {
 	
 	return false;
 }
- 
+
+ // TODO: remove removeEventlistener
 function mouseUp(e) {
 	e.preventDefault();
 	

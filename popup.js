@@ -22,9 +22,11 @@ document.querySelector("#screen").addEventListener("click", () => {
     })
 })
 
+/**
+ * Pass message to start snippet screenshot when 'snippet' button is clicked.
+ */
 document.querySelector("#snippet").addEventListener("click", () => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-        chrome.tabs.sendMessage(tabs[0].id, { type: "start-screenshot" }, (response) => { });
+        chrome.tabs.sendMessage(tabs[0].id, { type: "start-screenshot" });
     });
-    window.close();
 })
