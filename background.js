@@ -55,6 +55,12 @@ chrome.runtime.onMessage.addListener((request) => {
     }
 });
 
+chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+    if (changeInfo.status === "complete" && tab.url.includes("i.imgur.com")) {
+        setBadgeState("default");
+    }
+})
+
 /**
  * A data URI scheme uses the following syntax:
  *
