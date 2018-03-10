@@ -10,6 +10,7 @@ chrome.runtime.onMessage.addListener((request) => {
 	}
 });
 
+
 function startScreenshot() {
 	document.body.style.cursor = "crosshair";
     document.addEventListener("mousedown", mouseDown, false);
@@ -25,6 +26,10 @@ function sendMessage(msg) {
 	chrome.runtime.sendMessage(msg);
 };
 
+/** 
+ * Begin the process of snippet screenshot by creating
+ * "highlighter" UI component to indicate the selected area to be recorded.
+ */
 function mouseDown(e) {
     e.preventDefault();
 
@@ -48,6 +53,9 @@ function mouseDown(e) {
 	return false;
 }
 
+/** 
+ * Update coordinates of "highlighter" UI component.
+ */
 function mouseMove(e) {
     e.preventDefault();
 
@@ -65,6 +73,9 @@ function mouseMove(e) {
 	return false;
 }
 
+/** 
+ * Copute final coordinates of "highlighter" UI component.
+ */
 function mouseUp(e) {
     e.preventDefault();
     
