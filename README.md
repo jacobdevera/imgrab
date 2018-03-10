@@ -16,7 +16,7 @@ A Chrome extension that allows the user to grab a screenshot of the current tab 
   - **snippet**: select an area of screen to screenshot.
 
 After grabbing the image, it automatically sends a POST request to Imgur including the image.
-The extension icon changes style depending on the response of the POST request.
+The extension icon changes style depending on the response of the POST request. If the POST request was successful then the new imgur link will be opened in a new tab.
 
 ## Imgur Upload Privacy
 Although this extension allows you to post images to Imgur anynomously, it is important to note that **no image uploaded to Imgur is ever completely hidden from public view.** Every image uploaded to Imgur has it's own direct URL.
